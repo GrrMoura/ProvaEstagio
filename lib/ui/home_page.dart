@@ -1,10 +1,15 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 
-import 'package:http/http.dart' as http;
 import 'dart:async';
+import 'package:transparent_image/transparent_image.dart';
+
 import 'dart:convert';
 
-import 'package:transparent_image/transparent_image.dart';
+import 'package:http/http.dart' as http;
+
+import 'movie_page.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -13,7 +18,9 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   String _search;
+  int _offSet = 1;
   String _baseUrl = "https://image.tmdb.org/t/p/w185";
+  var _textFieldController = TextEditingController();
 
   Future<Map> getMovie() async {
     http.Response response;
@@ -22,7 +29,7 @@ class _HomeState extends State<Home> {
           "https://api.themoviedb.org/3/trending/movie/week?api_key=2a9d95460bb797267bbb8c1f5fb5528b");
     } else {
       response = await http.get(
-          "https://api.themoviedb.org/3/search/company?api_key=2a9d95460bb797267bbb8c1f5fb5528b&query=$_search&page=1");
+          "https://api.themoviedb.org/3/search/movie?api_key=2a9d95460bb797267bbb8c1f5fb5528b&language=en-US&query=$_search&page=$_offSet&include_adult=false");
     }
 
     return json.decode(response.body);
@@ -32,12 +39,29 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text("Mais polurares da semana"),
-          leading: IconButton(
-              color: Colors.white,
-              icon: Icon(Icons.search),
-              iconSize: 20,
-              onPressed: () {}),
+          title: Text("Avaliação técnica"),
+          actions: [
+            IconButton(
+              icon: Icon(Icons.favorite),
+              onPressed: () {
+                setState(() {
+                  _search = null;
+                  _offSet = 1;
+                  _textFieldController.clear();
+                });
+              },
+            ),
+            IconButton(
+              icon: Icon(Icons.home),
+              onPressed: () {
+                setState(() {
+                  _search = null;
+                  _offSet = 1;
+                  _textFieldController.clear();
+                });
+              },
+            ),
+          ],
           backgroundColor: Colors.blue,
         ),
         backgroundColor: Colors.black,
@@ -45,18 +69,21 @@ class _HomeState extends State<Home> {
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: TextField(
+              cursorColor: Colors.white,
               decoration: InputDecoration(
                   border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(30)),
-                  labelText: "Pesquise Aqqqqui !",
+                  labelText: "Pesquise Aqui !",
                   labelStyle: TextStyle(color: Colors.white)),
               style: TextStyle(fontSize: 18, color: Colors.white),
               textAlign: TextAlign.center,
+              onTap: () {},
               onSubmitted: (text) {
                 setState(() {
                   _search = text;
                 });
               },
+              controller: _textFieldController,
             ),
           ),
           Expanded(
@@ -95,7 +122,7 @@ class _HomeState extends State<Home> {
   }
 
   int _getCount(List results) {
-    if (_search == null) {
+    if (_search == null || _search.isEmpty) {
       return results.length;
     } else
       return results.length + 1;
@@ -116,10 +143,38 @@ class _HomeState extends State<Home> {
                 placeholder: kTransparentImage,
                 width: 300.0,
                 fit: BoxFit.fill),
-            onTap: () {},
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          MoviePage(snapshot.data["results"][index])));
+            },
           );
         else
-          return Container(); //implementar o else
+          return Container(
+            child: GestureDetector(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Icon(
+                    Icons.add,
+                    color: Colors.white,
+                    size: 70.0,
+                  ),
+                  Text(
+                    "Carregar mais...",
+                    style: TextStyle(color: Colors.white, fontSize: 22.0),
+                  )
+                ],
+              ),
+              onTap: () {
+                setState(() {
+                  _offSet += 1;
+                });
+              },
+            ),
+          );
       },
     );
   }
