@@ -45,9 +45,7 @@ class _HomeState extends State<Home> {
               icon: Icon(Icons.favorite),
               onPressed: () {
                 setState(() {
-                  _search = null;
-                  _offSet = 1;
-                  _textFieldController.clear();
+                  _dialog();
                 });
               },
             ),
@@ -175,6 +173,34 @@ class _HomeState extends State<Home> {
               },
             ),
           );
+      },
+    );
+  }
+
+  Future<void> _dialog() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Aviso"),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text(
+                    "Gostaria de dizer que não consegui terminar toda a prova,(porém sei oq cada linha significa)pois com início da pandemia tive que ficar fulltime com minha filha de 2 anos,assim tive que reduzir drasticamente minhas horas de estudos e filtrar oq seria ou não estudado.\nAssim me faltou tempo para tratar alguns erros bobos,criar a página de favoritos com bloC e fazer check nas informações nas entradas de dados\n\nDesde de já Agradeço pela oportnidade e se não der dessa vez, peço que me avisem em uma nova oportuinidade."),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            FlatButton(
+              child: Text("Fechar"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
       },
     );
   }
